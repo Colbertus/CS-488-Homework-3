@@ -25,7 +25,7 @@ import seaborn as sn
 # Mode 2: Covariance matrix visualization example
 # Mode 3: LDA on the IRIS dataset
 # Mode 4: Iris classification (Not working) 
-mode = 2
+mode = 3
 
 if(mode == 1):
     # Load the data
