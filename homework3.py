@@ -241,85 +241,6 @@ plt.title('LDA of IRIS dataset')
 
 plt.show()
 
-#######################################################################
-
-# reduce the data to the desired number of components using LDA
-def lda_reduction(data, gth, desiredComponents):
-    # initialize the LDA model
-    lda = LinearDiscriminantAnalysis(n_components=desiredComponents)
-    
-    # fit the model and transform the dataset
-    linearDiscriminants = lda.fit_transform(data,gth)
-    
-    # create a DataFrame for the reduced components
-    columns = ['LD-' + str(i) for i in range(1, desiredComponents + 1)]
-    principalDf = pd.DataFrame(data=linearDiscriminants, columns=columns)
-    
-    # concatenate the linear discriminants with the ground truth labels
-    finalDf = pd.concat([principalDf, gth], axis=1)
-    
-    return linearDiscriminants, finalDf
-
-# Load the data
-df = loadmat('indianR.mat')
-
-x = np.array(df['X'])
-
-gth = np.array(df['gth'])
-
-num_rows = np.array(df['num_rows'])
-
-num_cols = np.array(df['num_cols'])
-
-num_bands = np.array(df['num_bands'])
-
-bands, samples = x.shape
-
-# Load the ground truth data 
-gth_mat = loadmat('indian_gth.mat')
-gth_mat = {i : j for i, j in gth_mat.items() if i[0] != '_'}
-gt = pd.DataFrame({i : pd.Series(j[0]) for i, j in gth_mat.items()})
-
-# List features 
-n = []
-ind = [] 
-for i in range(bands):
-    n.append(i + 1)
-
-for i in range(bands):
-    ind.append('band' + str(n[i]))
-
-features = ind
-
-desiredComponents = 10
-
-# normalize the data between 0 and 1
-scaler_model = MinMaxScaler()
-scaler_model.fit(x.astype(float))
-x = scaler_model.transform(x) 
-
-# apply LDA to the dataset using the function
-linearDiscriminants, finalDf = lda_reduction(x.T, gth, desiredComponents)
-
-# plot the first two directions in LDA with respect to color-coded class separability
-plt.figure(figsize=(10, 10))
-ax = plt.subplot(1, 1, 1)
-markers = ['o', 'v', '^', '<', '>', 's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
-
-for target, marker in zip(np.unique(gth), markers):
-    indicesToKeep = finalDf['gth'] == target
-    ax.scatter(finalDf.loc[indicesToKeep, 'LD-1'], finalDf.loc[indicesToKeep, 'LD-2'], s=10, marker=marker, label=target)
-    
-ax.set_xlabel('LD-1', fontsize=15)
-ax.set_ylabel('LD-2', fontsize=15)
-ax.set_title('2 Component LDA for Indian Pines', fontsize=20)
-ax.legend(np.unique(gth))
-ax.grid()
-plt.show()
-
-#######################################################################
-
-
 # Iris classification 
 iris = datasets.load_iris()
 X = iris.data
@@ -417,7 +338,3 @@ def plot_per_class_accuracy(classifier, X, y, label, feature_selection = None):
 for label in classifier_labels:
     classifier = classifier_labels[label][0]
     plot_per_class_accuracy(classifier, X, y, label)
-
-
-
-
